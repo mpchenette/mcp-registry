@@ -1,7 +1,7 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import type { ServerDetail, ServerList, ServerResponse } from "../types/registry";
 import type { RegistryService, ListServersOptions } from "../services/registry-service";
-import { componentSchemas, getValidator } from "../schemas/openapi";
+import { dereferencedSchemas, getValidator } from "../schemas/openapi";
 import { validateWithSchema } from "../utils/validation";
 import { HttpError, UnauthorizedError } from "../utils/errors";
 
@@ -64,9 +64,9 @@ const serverVersionParamsSchema = {
   },
 };
 
-const serverDetailSchema = componentSchemas?.ServerDetail ?? { type: "object" };
-const serverResponseSchema = componentSchemas?.ServerResponse ?? { type: "object" };
-const serverListSchema = componentSchemas?.ServerList ?? { type: "object" };
+const serverDetailSchema = dereferencedSchemas.ServerDetail;
+const serverResponseSchema = dereferencedSchemas.ServerResponse;
+const serverListSchema = dereferencedSchemas.ServerList;
 
 export const registryRoutes: FastifyPluginAsync<RegistryRoutesOptions> = async (fastify, options) => {
   const { registry, publishToken } = options;

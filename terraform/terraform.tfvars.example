@@ -1,0 +1,25 @@
+# Example Terraform variables file
+# Copy this to terraform.tfvars and fill in your values
+
+subscription_id = "0000000-0000000-0000000-0000000"
+project_name = "mcp-registry"
+environment  = "dev"
+location     = "eastus"
+
+# Docker image tag to deploy
+image_tag = "latest"
+
+# Registry publish token (keep this secret!)
+registry_publish_token = "your-secret-token-here"
+
+# Scaling configuration
+min_replicas = 1
+max_replicas = 3
+
+# Optional: Custom tags
+tags = {
+  Project     = "mcp-registry"
+  Environment = "dev"
+  ManagedBy   = "Terraform"
+  Owner       = "your-team"
+}

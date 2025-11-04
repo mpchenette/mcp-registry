@@ -4,6 +4,7 @@ Fastify + SQLite implementation of the [Model Context Protocol](https://github.c
 Use it to publish and serve MCP server metadata with responses that conform to the official OpenAPI spec.
 
 ## Prerequisites
+
 - Node.js 18.19+ (Node 20.x recommended for Azure App Service)
 - npm 9+
 
@@ -64,6 +65,7 @@ curl "http://localhost:3000/v0/servers?cursor=<nextCursor>"
 ```
 
 ## Configuration
+
 - `PORT` – HTTP port (defaults to `3000`)
 - `DATABASE_PATH` – location for the SQLite database file (`./data/registry.sqlite` by default)
 - `REGISTRY_PUBLISH_TOKEN` – bearer token required for `POST /v0/publish`. Leave unset to make the registry read-only.
@@ -73,23 +75,42 @@ All configuration is read at start-up (`.env` is supported via `dotenv`).
 
 ## Deploying to Azure App Service
 
-1. Build the project: `npm run build`
-2. Deploy the repository (include `docs/reference/api/openapi.yaml`)
-3. Configure App Service settings:
-   - `PORT` should match the port App Service expects (`80` typically not required when using `process.env.PORT`)
-   - `REGISTRY_PUBLISH_TOKEN` and `DATABASE_PATH`
-4. Configure a startup command such as `npm start`
-5. Add optional health probe against `/healthz`
+1. Login to Azure
 
-SQLite stores data in `DATABASE_PATH`; with Azure App Service, point this path to persistent storage (`/home/site/wwwroot/data/registry.sqlite`).
+```bash
+az login
+```
+
+2. Configure variables
+
+```bash
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+Edit terraform.tfvars with your values
+```
+
+3. Deploy infrastructure
+
+```bash
+terraform init
+terraform apply
+```
+
+4. Get your API URL
+
+```bash
+terraform -chdir=terraform output api_url
+```
 
 ## Tooling
+
 - `npm run dev` – Fastify with hot reload (tsx)
 - `npm run typecheck` / `npm test` – TypeScript compilation checks
 - `npm run clean` – remove the `dist` directory
 - `npm run seed [file]` – load server definitions from a JSON array
 
 ## Helpful Links
+
 - OpenAPI specification: `docs/reference/api/openapi.yaml`
 - MCP registry API reference: https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/api/generic-registry-api.md
 

@@ -75,14 +75,18 @@ export class RegistryService {
     const rows = this.db.prepare<unknown[]>(query).all(...parameters, limit) as ServerVersionRow[];
 
     const servers = rows.map((row) => this.mapRowToResponse(row));
-    const nextCursor = rows.length === limit ? this.encodeCursor(rows[rows.length - 1].id) : null;
+    const nextCursor = rows.length === limit ? this.encodeCursor(rows[rows.length - 1].id) : undefined;
+
+    const metadata: { count: number; nextCursor?: string } = {
+      count: rows.length,
+    };
+    if (nextCursor) {
+      metadata.nextCursor = nextCursor;
+    }
 
     return {
       servers,
-      metadata: {
-        count: rows.length,
-        nextCursor,
-      },
+      metadata,
     };
   }
 
@@ -108,7 +112,6 @@ export class RegistryService {
       servers,
       metadata: {
         count: rows.length,
-        nextCursor: null,
       },
     };
   }

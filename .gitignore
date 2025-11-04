@@ -1,9 +1,38 @@
+# Node.js
 node_modules
 dist
 .env
+coverage
+
+# SQLite databases
 *.sqlite
 data/*.db
 data/*.sqlite
 data/*.sqlite3
 data/*.log
-coverage
+
+# Terraform
+*.tfvars
+*.tfvars.json
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

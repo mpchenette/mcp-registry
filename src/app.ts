@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import { env } from "./config/env";
 import { createDatabase } from "./db";
 import { registryRoutes } from "./routes/registry-routes";
@@ -11,6 +12,12 @@ export const buildApp = () => {
     logger: {
       level: env.nodeEnv === "production" ? "info" : "debug",
     },
+  });
+
+  // Enable CORS for all origins
+  app.register(cors, {
+    origin: true, // Allow all origins
+    credentials: true,
   });
 
   const database = createDatabase(env.databasePath);

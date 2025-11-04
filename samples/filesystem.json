@@ -1,6 +1,6 @@
 {
   "name": "io.modelcontextprotocol/filesystem",
-  "description": "Node.js server implementing MCP for filesystem operations: list directories, read files, and manage project assets.",
+  "description": "MCP server for filesystem operations: list directories, read files, and manage project assets.",
   "title": "Filesystem",
   "repository": {
     "url": "https://github.com/modelcontextprotocol/servers",

@@ -31,9 +31,62 @@ if (!componentSchemas) {
   throw new Error("OpenAPI document missing components.schemas section");
 }
 
+// Add the entire OpenAPI document to allow Ajv to resolve all $ref references
+ajv.addSchema(openApiDocument, openApiDocument.$id);
+
+// Also add individual schemas with their reference paths
 for (const [name, schema] of Object.entries(componentSchemas)) {
   ajv.addSchema(schema as Record<string, unknown>, `#/components/schemas/${name}`);
 }
+
+// OpenAPI keywords to strip from JSON Schema (for Fastify compatibility)
+const OPENAPI_KEYWORDS = new Set([
+  "example",
+  "examples",
+  "discriminator",
+  "xml",
+  "externalDocs",
+  "deprecated",
+  "default", // Fastify's strict mode doesn't like default in some contexts
+]);
+
+// Helper function to recursively resolve $ref in schemas
+function resolveRefs(schema: any, components: Record<string, any>): any {
+  if (!schema || typeof schema !== "object") {
+    return schema;
+  }
+
+  if (Array.isArray(schema)) {
+    return schema.map((item) => resolveRefs(item, components));
+  }
+
+  if (schema.$ref) {
+    const refPath = schema.$ref.replace("#/components/schemas/", "");
+    const resolvedSchema = components[refPath];
+    if (!resolvedSchema) {
+      throw new Error(`Cannot resolve reference: ${schema.$ref}`);
+    }
+    // Recursively resolve the referenced schema
+    return resolveRefs(resolvedSchema, components);
+  }
+
+  const resolved: any = {};
+  for (const [key, value] of Object.entries(schema)) {
+    // Skip OpenAPI-specific keywords
+    if (OPENAPI_KEYWORDS.has(key)) {
+      continue;
+    }
+    resolved[key] = resolveRefs(value, components);
+  }
+  return resolved;
+}
+
+// Create dereferenced schemas for Fastify (which uses fast-json-stringify)
+export const dereferencedSchemas = {
+  ServerDetail: resolveRefs(componentSchemas.ServerDetail, componentSchemas),
+  ServerResponse: resolveRefs(componentSchemas.ServerResponse, componentSchemas),
+  ServerList: resolveRefs(componentSchemas.ServerList, componentSchemas),
+};
 
 export const getSchemaValidator = (ref: string): ValidateFunction<unknown> => {
   const validator = ajv.getSchema(ref);
